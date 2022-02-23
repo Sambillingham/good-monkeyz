@@ -26,7 +26,7 @@ contract GMMerchBundle is ERC1155, Ownable, ERC1155Burnable {
     }
 
     function updateMerchBundleStatus() public onlyOwner () {
-        mintPassMintable = !mintPassMintable;
+        merchBundleMintable = !merchBundleMintable;
     }
 
     function updateMintPassStatus() public onlyOwner () {
