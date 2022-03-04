@@ -40,6 +40,7 @@ contract GMMerchBundle is ERC1155, Ownable, ERC1155Burnable {
     function setMerchBundlePrice(uint256 price) public onlyOwner  () {
         merchBundlePrice = price;
     }
+    
     function setMintPassPrice(uint256 price) public onlyOwner  () {
         mintPassPrice = price;
     }
