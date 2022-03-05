@@ -44,10 +44,7 @@ contract GMMerchBundleGeneric is ERC1155, Ownable, ERC1155Burnable {
         mintableAllow[id] = _allow;
         mintablePublic[id] = _open;
     }
-    
-    function getTokenData(){
 
-    }
 
     function getPrice() public view returns (uint256[] memory) {
         return price;

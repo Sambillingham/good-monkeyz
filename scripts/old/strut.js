@@ -66,9 +66,9 @@ const main = async () => {
     console.log(al)
 
     const overrides = { value: ethers.utils.parseEther('0.2')};
-    let mint = await (await GMMerchBundle.connect(r1).mintToken(0,overrides)).wait();
+    let mint = await (await GMMerchBundle.connect(r1).mintTokenAllow(0,overrides)).wait();
     console.log(mint.transactionHash)
-    let mint2 = await (await GMMerchBundle.connect(r1).mintToken(1,overrides)).wait();
+    let mint2 = await (await GMMerchBundle.connect(r1).mintTokenAllow(1,overrides)).wait();
     console.log(mint2.transactionHash)
 
   };

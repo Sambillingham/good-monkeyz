@@ -1,63 +1,47 @@
 const main = async () => {
-    const [owner, randomPerson] = await hre.ethers.getSigners();
+    const [owner, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13,r14, r15, r16, r17, r18, r19] = await hre.ethers.getSigners();
 
-    const GMMerchBundleFactory = await hre.ethers.getContractFactory('GMMerchBundle');
+    const GMMerchBundleFactory = await hre.ethers.getContractFactory('GMMerchStrut');
     const GMMerchBundle = await GMMerchBundleFactory.deploy();
     await GMMerchBundle.deployed();
-    console.log("SHOP deployed to:", GMMerchBundle.address);
+    console.log("MERCH BUNDLE deployed to:", GMMerchBundle.address);
 
-    const GMPFPFactory = await hre.ethers.getContractFactory('GMPFP');
-    const GMPFP = await GMPFPFactory.deploy();
-    await GMPFP.deployed();
-    console.log("PFP deployed to:", GMPFP.address);
+    await GMMerchBundle.connect(owner).createMerchItem(77, ethers.utils.parseEther('0.07'), ethers.utils.parseEther('0.001') )
+    await GMMerchBundle.connect(owner).createMerchItem(77, ethers.utils.parseEther('0.1'), ethers.utils.parseEther('0.001') )
+    await GMMerchBundle.connect(owner).updateMerchItem(
+        0, 
+        300,
+        ethers.utils.parseEther('0.08'),
+        ethers.utils.parseEther('0.005'),
+        true,
+        true,
+        true );
+   await GMMerchBundle.connect(owner).updateMerchItem(
+          1, 
+          300,
+          ethers.utils.parseEther('0.08'),
+          ethers.utils.parseEther('0.005'),
+          true,
+          true,
+          true );
 
-    await GMMerchBundle.updateMerchBundleStatus();
-    // const overrides = { value: ethers.utils.parseEther('0.06')};
-    // let txn = await GMMerchBundle.connect(randomPerson).mintMerch(overrides);
-    // txn.wait();
+    let mHash = ethers.utils.solidityKeccak256(['address', 'uint256'],[r1.address, 0]);
+    let bytes = ethers.utils.arrayify(mHash);
+    let signature = await owner.signMessage(bytes);
+    // console.log(signature)
+    // let addressHash2 = ethers.utils.id(r2.address);
+    // let bytes2 = ethers.utils.arrayify(addressHash2);
+    // let signature2 = await r3.signMessage(bytes2);
+      
 
-    for (let i = 0; i < 77; i++) {
-      let sndVal = String(0.15);
-      const overrides = { value: ethers.utils.parseEther(sndVal)};
-      (await GMMerchBundle.connect(randomPerson).mintMerch(overrides)).wait();
-    }
+    const overrides = { value: ethers.utils.parseEther('0.2')};
+    let mint = await (await GMMerchBundle.connect(r1).mintTokenAllow(0, signature, overrides)).wait();
+    // let mint3 = await (await GMMerchBundle.connect(r1).mintTokenAllow(0, addressHash, '0xfe7047b678c0a36323e9723baabe7038a4013986a5d655745fb023ff1e9b81cf5cac95e83bad546ef01492f7730694584ce4d434fa245b298bf51a8ca4f453e11c', overrides)).wait();
+    // let mint2 = await (await GMMerchBundle.connect(r2).mintTokenAllow(0, addressHash2, signature2 , overrides)).wait();
+    console.log(mint.transactionHash)
+    // console.log(mint2.transactionHash)
+    // console.log(mint3.transactionHash)
 
-    // WITHDRAW 
-      // - check balance before
-      // - check balance after
-        let shopBal = await hre.ethers.provider.getBalance(GMMerchBundle.address);
-        console.log('SHOP BALANCE/ ', shopBal );
-        let ownerBal = await hre.ethers.provider.getBalance(owner.address);
-        console.log('OWNER BALANCE/ ', ownerBal );
-        console.log('================');
-        console.log('WITHDRAW');
-        console.log('================');
-        let wd = await GMMerchBundle.connect(owner).withdraw();
-        let newOwnerBal = await hre.ethers.provider.getBalance(owner.address);
-        console.log('OWNER BALANCE/ ', newOwnerBal );
-        wd.wait();
-    //
-
-
-    // let setSHOP = await GMPFP.setShopAddress(GMMerchBundle.address);
-    // setSHOP.wait();
-
-    // let approval = await GMMerchBundle.connect(randomPerson).setApprovalForAll(GMPFP.address, true);
-    // approval.wait();
-    
-    // let mint = await GMPFP.connect(randomPerson).mintWithPass5();
-    // mint.wait();
-    // let mint2 = await GMPFP.connect(randomPerson).mintWithPass5();
-    // mint2.wait();
-
-    let supply = await GMMerchBundle.getMinted();
-
-    console.log( 'Supply %s', supply);
-
-  
-    // let burn = await GMPFP.mintWithPass();
-
-    // burn.wait();
   };
   
   const runMain = async () => {
