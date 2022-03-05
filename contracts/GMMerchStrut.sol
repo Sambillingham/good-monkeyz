@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "hardhat/console.sol";
 
 contract GMMerchStrut is ERC1155, Ownable, ERC1155Burnable {
     constructor()
@@ -58,13 +59,13 @@ contract GMMerchStrut is ERC1155, Ownable, ERC1155Burnable {
     function setURI(string memory newuri) public onlyOwner {
         _setURI(newuri);
     }
-    
+
+    // "\x19Ethereum Signed Message:\n32",
     function recoverSigner(address _address, bytes memory signature, uint256 id) public pure returns (address) {
         bytes32 messageDigest = keccak256(
             abi.encodePacked(
                 "\x19Ethereum Signed Message:\n32",
-                _address,
-                id
+                keccak256(abi.encodePacked(_address, id))
             )
         );
         return ECDSA.recover(messageDigest, signature);
@@ -95,6 +96,7 @@ contract GMMerchStrut is ERC1155, Ownable, ERC1155Burnable {
         require(merch[id].allowMintable , "MINTING - NOT OPEN");
         require(msg.value >= merch[id].price, "Not enough ETH sent");
         require(merch[id].minted <= merch[id].supply, "Sold out");
+        
         require(recoverSigner(msg.sender, signature, id) == owner(), "Address is not allowlisted");
         require(!mintList[msg.sender][id], "ONLY 1 MINT PER WALLET");
 
