@@ -9,3 +9,6 @@ cache
 artifacts
 
 .DS_Store
+
+# stored off github
+artwork/
