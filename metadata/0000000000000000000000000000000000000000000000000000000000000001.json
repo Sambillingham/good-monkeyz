@@ -1,6 +1,8 @@
 {
-    "description": "MB",
-    "external_url": "",
-    "image": "https://gateway.pinata.cloud/ipfs/QmPzMJFUfRcbWqCASbdR6G8qe4xCmNw1yL8HdamNZPGYtF",
-    "name": "MERCH BUNDLE"
-  }
+  "description": "GOODMONKEYZ MINT PASS ",
+  "external_url": "https://goodmonkeyz.art",
+  "name": "GM MINT PASS",
+  "animation_url": "ipfs://QmcUPGa9JTf249GVnPCUnzQ9oKAKsYwDwn2LySxopYhmqy",
+  "background_color": "000000",
+  "attributes": []
+}
