@@ -1,8 +1,9 @@
 {
     "description": "Access to GEN0 GOODMONKEYZ merch drop",
     "external_url": "https://goodmonkeyz.art",
-    "name": "GM MERCH BUNDLE",
+    "name": "Good Monkeyz Merch Bundle",
     "animation_url": "ipfs://QmYLQs1BpfvCkbCEqaoqpesm9oFmXjkqJdzLsfFCoxYqon",
+    "image": "ipfs://QmbaHoXZuYXKVF16YDnhUed59vedkAeqc6tGFs6c76bMbd",
     "background_color": "000000",
     "attributes": []
   }

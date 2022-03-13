@@ -1,8 +1,9 @@
 {
-  "description": "GOODMONKEYZ MINT PASS ",
+  "description": "Good Monkeyz mint pass ",
   "external_url": "https://goodmonkeyz.art",
-  "name": "GM MINT PASS",
+  "name": "Good Monkeyz Mint Pass",
   "animation_url": "ipfs://QmcUPGa9JTf249GVnPCUnzQ9oKAKsYwDwn2LySxopYhmqy",
+  "image": "ipfs://QmcAF5GaKzMBUbzT3VjfCLGdMWpCVXGHLL76NVKdD4NCkQ",
   "background_color": "000000",
   "attributes": []
 }
