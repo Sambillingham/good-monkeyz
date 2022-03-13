@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: MIT
 
-// ▒█▀▀█ ▒█▀▀▀█ ▒█▀▀▀█ ▒█▀▀▄ 　 ▒█▀▄▀█ ▒█▀▀▀█ ▒█▄░▒█ ▒█░▄▀ ▒█▀▀▀ ▒█░░▒█ ▒█▀▀▀█ 　 ▒█▀▄▀█ ▒█▀▀▀ ▒█▀▀█ ▒█▀▀█ ▒█░▒█ 
-// ▒█░▄▄ ▒█░░▒█ ▒█░░▒█ ▒█░▒█ 　 ▒█▒█▒█ ▒█░░▒█ ▒█▒█▒█ ▒█▀▄░ ▒█▀▀▀ ▒█▄▄▄█ ░▄▄▄▀▀ 　 ▒█▒█▒█ ▒█▀▀▀ ▒█▄▄▀ ▒█░░░ ▒█▀▀█ 
-// ▒█▄▄█ ▒█▄▄▄█ ▒█▄▄▄█ ▒█▄▄▀ 　 ▒█░░▒█ ▒█▄▄▄█ ▒█░░▀█ ▒█░▒█ ▒█▄▄▄ ░░▒█░░ ▒█▄▄▄█ 　 ▒█░░▒█ ▒█▄▄▄ ▒█░▒█ ▒█▄▄█ ▒█░▒█
+// █▀▀ █▀█ █▀█ █▀▄   █▀▄▀█ █▀█ █▄░█ █▄▀ █▀▀ █▄█ ▀█
+// █▄█ █▄█ █▄█ █▄▀   █░▀░█ █▄█ █░▀█ █░█ ██▄ ░█░ █▄
+// ▄▄ ▄▄ ▄▄ ▄▄ ▄▄ ▄▄ ▄▄ ▄▄ ▄▄ ▄▄ ▄▄ ▄▄ ▄▄ ▄▄ ▄▄ ▄▄
+// ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░
+// ░░▄▀ ░░▄▀   █▀▀ █▀█   ▀▄▀   █▀ █▄▄   ░░▄▀ ░░▄▀
+// ▄▀░░ ▄▀░░   █▄▄ █▀▀   █░█   ▄█ █▄█   ▄▀░░ ▄▀░░
 
-pragma solidity ^0.8.2;
+pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -13,7 +16,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 contract GMMerch is ERC1155, Ownable, ERC1155Burnable {
     constructor()
-        ERC1155("https://ipfs.io/ipfs/QmcAU59G6omEg6kbNyP1Rz8R9zevS8owfXcsBpFoNQFVo9/{id}.json")
+        ERC1155("https://ipfs.io/ipfs/QmRWM6aaa1eLqgRyCtR8A3rkwhDM7Cp7MZjNVUcbq2piZz/{id}.json")
         {}
     
     mapping(address => mapping(uint256 => bool)) public mintList;
