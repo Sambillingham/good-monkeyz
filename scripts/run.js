@@ -8,31 +8,34 @@ const main = async () => {
     await GMMerch.deployed();
     console.log("MERCH BUNDLE deployed to:", GMMerch.address);
 
-    await GMMerch.connect(owner).createMerchItem(77, ethers.utils.parseEther('0.07'), ethers.utils.parseEther('0.001') )
+    await GMMerch.connect(owner).createMerchItem(77, ethers.utils.parseEther('0.07'), ethers.utils.parseEther('0.007') )
     await GMMerch.connect(owner).createMerchItem(77, ethers.utils.parseEther('0.1'), ethers.utils.parseEther('0.001') )
     await GMMerch.connect(owner).updateMerchItem(
         0, 
         300,
-        ethers.utils.parseEther('0.08'),
-        ethers.utils.parseEther('0.005'),
+        ethers.utils.parseEther('0.07'),
+        ethers.utils.parseEther('0.007'),
+        7,
         true,
         true,
         true );
+
    await GMMerch.connect(owner).updateMerchItem(
           1, 
-          300,
-          ethers.utils.parseEther('0.08'),
-          ethers.utils.parseEther('0.005'),
+          250,
+          ethers.utils.parseEther('0.1'),
+          ethers.utils.parseEther('0.00'),
+          250,
           true,
           true,
           true );
-
+    
 
           // let messageHash = ethers.utils.id(owner.address);
-          let messageHash = ethers.utils.solidityKeccak256(['address', 'uint256'], [owner.address, 0]);
-          let messageBytes = ethers.utils.arrayify(messageHash);
-          let signature = await owner.signMessage(messageBytes);
-          console.log("Signature: ", signature);
+          // let messageHash = ethers.utils.solidityKeccak256(['address', 'uint256'], [owner.address, 0]);
+          // let messageBytes = ethers.utils.arrayify(messageHash);
+          // let signature = await owner.signMessage(messageBytes);
+          // console.log("Signature: ", signature);
 
           // const overrides = { value: ethers.utils.parseEther('0.2')};
           // let mint = await (await GMMerch.connect(r1).mintTokenAllow(0, signature, overrides)).wait();
