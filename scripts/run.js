@@ -3,14 +3,14 @@ require('dotenv').config();
 const main = async () => {
     const [owner, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13,r14, r15, r16, r17, r18, r19] = await hre.ethers.getSigners();
 
-    const GMMerchBundleFactory = await hre.ethers.getContractFactory('GMMerchStrut');
-    const GMMerchBundle = await GMMerchBundleFactory.deploy();
-    await GMMerchBundle.deployed();
-    console.log("MERCH BUNDLE deployed to:", GMMerchBundle.address);
+    const GMMerchFactory = await hre.ethers.getContractFactory('GMMerch');
+    const GMMerch = await GMMerchFactory.deploy();
+    await GMMerch.deployed();
+    console.log("MERCH BUNDLE deployed to:", GMMerch.address);
 
-    await GMMerchBundle.connect(owner).createMerchItem(77, ethers.utils.parseEther('0.07'), ethers.utils.parseEther('0.001') )
-    await GMMerchBundle.connect(owner).createMerchItem(77, ethers.utils.parseEther('0.1'), ethers.utils.parseEther('0.001') )
-    await GMMerchBundle.connect(owner).updateMerchItem(
+    await GMMerch.connect(owner).createMerchItem(77, ethers.utils.parseEther('0.07'), ethers.utils.parseEther('0.001') )
+    await GMMerch.connect(owner).createMerchItem(77, ethers.utils.parseEther('0.1'), ethers.utils.parseEther('0.001') )
+    await GMMerch.connect(owner).updateMerchItem(
         0, 
         300,
         ethers.utils.parseEther('0.08'),
@@ -18,7 +18,7 @@ const main = async () => {
         true,
         true,
         true );
-   await GMMerchBundle.connect(owner).updateMerchItem(
+   await GMMerch.connect(owner).updateMerchItem(
           1, 
           300,
           ethers.utils.parseEther('0.08'),
@@ -35,7 +35,7 @@ const main = async () => {
           console.log("Signature: ", signature);
 
           // const overrides = { value: ethers.utils.parseEther('0.2')};
-          // let mint = await (await GMMerchBundle.connect(r1).mintTokenAllow(0, signature, overrides)).wait();
+          // let mint = await (await GMMerch.connect(r1).mintTokenAllow(0, signature, overrides)).wait();
           // console.log('tx', mint.transactionHash)
 
           // solidityKeccak256
@@ -49,9 +49,9 @@ const main = async () => {
     // console.log('SIG: ', signature)
 
     // const overrides = { value: ethers.utils.parseEther('0.2')};
-    // let mint = await (await GMMerchBundle.connect(owner).mintTokenAllow(0, signature, overrides)).wait();
-    // let mint3 = await (await GMMerchBundle.connect(r1).mintTokenAllow(0, addressHash, '0xfe7047b678c0a36323e9723baabe7038a4013986a5d655745fb023ff1e9b81cf5cac95e83bad546ef01492f7730694584ce4d434fa245b298bf51a8ca4f453e11c', overrides)).wait();
-    // let mint2 = await (await GMMerchBundle.connect(r2).mintTokenAllow(0, addressHash2, signature2 , overrides)).wait();
+    // let mint = await (await GMMerch.connect(owner).mintTokenAllow(0, signature, overrides)).wait();
+    // let mint3 = await (await GMMerch.connect(r1).mintTokenAllow(0, addressHash, '0xfe7047b678c0a36323e9723baabe7038a4013986a5d655745fb023ff1e9b81cf5cac95e83bad546ef01492f7730694584ce4d434fa245b298bf51a8ca4f453e11c', overrides)).wait();
+    // let mint2 = await (await GMMerch.connect(r2).mintTokenAllow(0, addressHash2, signature2 , overrides)).wait();
     // console.log(mint.transactionHash)
     // console.log(mint2.transactionHash)
     // console.log(mint3.transactionHash)

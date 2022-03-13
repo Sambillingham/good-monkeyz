@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "hardhat/console.sol";
 
-contract GMMerchStrut is ERC1155, Ownable, ERC1155Burnable {
+contract GMMerch is ERC1155, Ownable, ERC1155Burnable {
     constructor()
         ERC1155("https://ipfs.io/ipfs/QmPDLZhhtFkNp94PYpa63A5sKPax4dog9K3So1PUjoq9pf/{id}.json")
         {}
