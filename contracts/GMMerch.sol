@@ -14,12 +14,16 @@ contract GMMerch is ERC1155, Ownable, ERC1155Burnable {
     
     mapping(address => mapping(uint256 => bool)) public mintList;
 
+    event GMMinted(address sender, uint256 tokenId);
+    event GmBurned(address sender, uint256 tokenId);
+
     struct MerchItem {
         uint256 minted;
         uint256 burned;
         uint256 supply;
         uint256 price;
         uint256 increment;
+        uint256 incrementInterval;
         bool allowMintable;
         bool publicMintable;
         bool mintPassIncluded;
@@ -33,17 +37,19 @@ contract GMMerch is ERC1155, Ownable, ERC1155Burnable {
             supply: _supply,
             price: _price,
             increment: _increment,
+            incrementInterval: 7,
             allowMintable: false,
             publicMintable: false,
             mintPassIncluded: false
         }));
     }
 
-    function updateMerchItem(uint _index, uint256 _supply, uint256 _price, uint256 _increment, bool _allowMintable, bool _publicMintable, bool _mintPassIncluded) public {
+    function updateMerchItem(uint _index, uint256 _supply, uint256 _price, uint256 _increment, uint256 _incrementInterval, bool _allowMintable, bool _publicMintable, bool _mintPassIncluded) public {
         MerchItem storage m = merch[_index];
         m.supply = _supply;
         m.price = _price;
         m.increment = _increment;
+        m.incrementInterval = _incrementInterval;
         m.allowMintable = _allowMintable;
         m.publicMintable = _publicMintable;
         m.mintPassIncluded = _mintPassIncluded;
@@ -53,14 +59,10 @@ contract GMMerch is ERC1155, Ownable, ERC1155Burnable {
         return merch.length;
     }
 
-    event GMMinted(address sender, uint256 tokenId);
-    event GmBurned(address sender, uint256 tokenId);
-    
     function setURI(string memory newuri) public onlyOwner {
         _setURI(newuri);
     }
 
-    // "\x19Ethereum Signed Message:\n32",
     function recoverSigner(address _address, bytes memory signature, uint256 id) public pure returns (address) {
         bytes32 messageDigest = keccak256(
             abi.encodePacked(
@@ -79,7 +81,7 @@ contract GMMerch is ERC1155, Ownable, ERC1155Burnable {
 
         _mint(msg.sender, id, 1, '');
 
-        if( (merch[id].minted + 1) % 5 == 0 ) {
+        if( merch[id].minted % merch[id].incrementInterval == 0 ) {
             merch[id].price += merch[id].increment;
         }
         merch[id].minted += 1;
@@ -105,7 +107,7 @@ contract GMMerch is ERC1155, Ownable, ERC1155Burnable {
         merch[id].minted += 1;
         mintList[msg.sender][id] = true;
 
-        if( (merch[id].minted + 1) % 5 == 0 ) {
+        if( merch[id].minted % merch[id].incrementInterval == 0 ) {
             merch[id].price += merch[id].increment;
         }
 
