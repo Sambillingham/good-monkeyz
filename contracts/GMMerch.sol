@@ -14,7 +14,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 contract GMMerch is ERC1155, Ownable, ERC1155Burnable {
     constructor()
-        ERC1155("https://ipfs.io/ipfs/QmcTcYcyZcf2VNqUv7fYiQ8UrQEgUZHxpMgPxuazDw3wcu/{id}.json")
+        ERC1155("https://ipfs.io/ipfs/QmabkU1KMUrusjGrZK6z6bqmRMQ2RXiGqQAFTVQrmMx7E2/{id}.json")
         {}
     
     mapping(address => mapping(uint256 => bool)) public mintList;
