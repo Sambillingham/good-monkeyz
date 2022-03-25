@@ -1,5 +1,6 @@
 const main = async () => {
   const GMMerchBundleFactory = await hre.ethers.getContractFactory('GMMerch');
+  // const GMMerchBundle = await GMMerchBundleFactory.deploy({gasPrice:20000000000});
   const GMMerchBundle = await GMMerchBundleFactory.deploy();
   await GMMerchBundle.deployed();
   console.log("SHOP deployed to:", GMMerchBundle.address);

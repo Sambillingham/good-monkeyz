@@ -10,9 +10,6 @@ let messageBytes = ethers.utils.arrayify(messageHash);
 let signature = await wallet.signMessage(messageBytes);
 console.log("Signature: ", signature);
 
-
-};
-  
 const runMain = async () => {
   try {
     await main();
@@ -24,3 +21,7 @@ const runMain = async () => {
 };
 
 runMain();
+
+
+
+

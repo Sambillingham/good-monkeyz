@@ -46,7 +46,7 @@ const main = async () => {
         const overrides = { value: ethers.utils.parseEther(sndVal)};
 
         let mint = await (await GMMerch.connect(accounts[i+1]).mintTokenAllow(0,signatures[i],overrides)).wait();
-        console.log(`MINT TOKEN: #${i} ---- PRICE: ${price} - `, mint.transactionHash)
+        console.log(`MINT TOKEN: #${i+1} ---- PRICE: ${price} - `, mint.transactionHash)
     }
     console.log('----------------------');
     console.log('----------------------');
