@@ -17,8 +17,7 @@ interface GMLTDEDITIONS {
     function burnToken(address, uint256 id) external; 
 }
 
-//
-contract GMPFP is ERC721, Ownable {
+contract GoodMonkeyz is ERC721, Ownable {
     using Counters for Counters.Counter;
 
     Counters.Counter private tokenId;
