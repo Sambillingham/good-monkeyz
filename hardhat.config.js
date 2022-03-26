@@ -23,18 +23,21 @@ module.exports = {
   networks: {
     hardhat: {
       accounts: {
-        count: 1000
+        count: 10000
       }
-      // accounts: [{ privateKey: process.env.PRIVATE_KEY, balance: '10000000000000000000000'}],
+      // accounts: [
+        // { privateKey: process.env.PRIVATE_KEY_MONKEY_PROD, balance: '10000000000000000000000'},
+        // { privateKey: process.env.PRIVATE_KEY, balance: '10000000000000000000000'}
+      // ],
     },
     rinkeby: {
       url: process.env.STAGING_ALCHEMY_KEY,
       accounts: [process.env.PRIVATE_KEY],
     },
-    // mainnet: {      
-      // url: process.env.MAINNET_ALCHEMY_KEY,      
-      // accounts: [process.env.PRIVATE_KEY_MONKEY_PROD], 
-    // },
+    mainnet: {      
+      url: process.env.MAINNET_ALCHEMY_KEY,      
+      accounts: [process.env.PRIVATE_KEY_MONKEY_PROD], 
+    },
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API,

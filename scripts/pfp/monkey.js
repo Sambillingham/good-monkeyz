@@ -7,7 +7,7 @@ const main = async () => {
         return accounts[r];
     }
     let signatures = [];
-    let pfpSignatures = [];
+    let pfpSignatures = [0];
     const GMMerchFactory = await hre.ethers.getContractFactory('GMMerch');
     const GMMerch = await GMMerchFactory.deploy();
     await GMMerch.deployed();
@@ -19,11 +19,12 @@ const main = async () => {
     console.log("GoodMonkeyz PFP deployed to:", GMPFP.address);
 
     const owner = accounts[0];
-    await GMMerch.connect(owner).createMerchItem(77, ethers.utils.parseEther('0.07'), ethers.utils.parseEther('0.007') )
-    await GMMerch.connect(owner).createMerchItem(77, ethers.utils.parseEther('0.1'), ethers.utils.parseEther('0.001') )
+    await GMMerch.connect(owner).createMerchItem(250, ethers.utils.parseEther('0.07'), ethers.utils.parseEther('0.007') )
+    await GMMerch.connect(owner).createMerchItem(250, ethers.utils.parseEther('0.1'), ethers.utils.parseEther('0.001') )
+    await GMMerch.connect(owner).createMerchItem(250, ethers.utils.parseEther('0.1'), ethers.utils.parseEther('0.001') )
     await GMMerch.connect(owner).updateMerchItem(
         0, 
-        77,
+        250,
         ethers.utils.parseEther('0.07'),
         ethers.utils.parseEther('0.007'),
         7,
@@ -39,9 +40,18 @@ const main = async () => {
           false,
           false,
           false );
+    await GMMerch.connect(owner).updateMerchItem(
+      2, 
+      250,
+      ethers.utils.parseEther('0.1'),
+      ethers.utils.parseEther('0.00'),
+      250,
+      true,
+      true,
+      true );
     
     let price = 0.07;
-    for (let i = 0; i < 77; i++) {
+    for (let i = 0; i < 250; i++) {
         let messageHash = ethers.utils.solidityKeccak256(['address', 'uint256'], [accounts[i+1].address, 0]);
         let messageBytes = ethers.utils.arrayify(messageHash);
         signatures.push(await owner.signMessage(messageBytes))
@@ -50,12 +60,17 @@ const main = async () => {
             console.log('----> INCREASE PRICE 0.007 <----')
             price = price + 0.007;
         }
-
         const overrides = { value: ethers.utils.parseEther(String(price))};
 
         let mint = await (await GMMerch.connect(accounts[i+1]).mintTokenAllow(0,signatures[i],overrides)).wait();
         console.log(`MINT TOKEN: #${i+1} ---- PRICE: ${price} - `, mint.transactionHash)
     }
+    for (let i = 1; i <= 250; i++) {
+      
+      const overrides = { value: ethers.utils.parseEther(String(0.1))};
+      let mint = await (await GMMerch.connect(accounts[i]).mintToken(2,overrides)).wait();
+      console.log(`MINT TOKEN: #${i} ---- PRICE: ${price} - `, mint.transactionHash)
+  }
 
     console.log('----------------------');
     console.log('----------------------');
@@ -94,43 +109,100 @@ const main = async () => {
     console.log('OWNER BALANCE/ ', ethers.utils.formatEther(newOwnerBal) );
     wd.wait();
 
-    let setSHOP = await GMPFP.setShopAddress(GMMerch.address);
+    let setSHOP = await GMPFP.setMerchAddress(GMMerch.address);
     setSHOP.wait();
+    //
 
+    async function mintWithPass(account){
+      let approval = await GMMerch.connect(account).setApprovalForAll(GMPFP.address, true);
+      approval.wait();
+      let mint = await (await GMPFP.connect(account).mintWithPass()).wait();
+      console.log('PASS MINT: %s', mint.transactionHash)
+    }
+    async function mintWithBooster(account){
+      let approval = await GMMerch.connect(account).setApprovalForAll(GMPFP.address, true);
+      approval.wait();
+      let mint = await (await GMPFP.connect(account).mintWithBoosterPack()).wait();
+      console.log('PASS MINT: %s', mint.transactionHash)
+    }
+
+    async function mintAllow(i, _amount) {
+      let overrides = { value: ethers.utils.parseEther(String(0.077*_amount))};
+      let messageHash = ethers.utils.solidityKeccak256(['address'], [accounts[i].address]);
+      let messageBytes = ethers.utils.arrayify(messageHash);
+      pfpSignatures.push(await owner.signMessage(messageBytes))
+      let mint = await (await GMPFP.connect(accounts[i]).mintAllow(_amount, pfpSignatures[i],overrides)).wait();
+      console.log('>>%s %s', mint.transactionHash)
+    }
+
+    async function mintPublic(_amount) {
+      let overrides = { value: ethers.utils.parseEther(String(0.077*_amount))};
+      console.log(overrides, _amount)
+      let mint = await GMPFP.connect(rAccount()).mint(_amount,overrides);
+      const tx = await mint.wait();
+      console.log('---- %s', tx.transactionHash)
+    }
+
+    const rNum = (min,max) => {
+      const r = Math.floor(Math.random() * max) 
+      if (r > min) {
+        return r;
+      } else  {
+        return min;
+      }
+
+  }
 
     // OPEN -
-    GMPFP.connect(owner).setPass();
-    GMPFP.connect(owner).setAllow();
-    GMPFP.connect(owner).setPublic();
-    // SET PRICE
-    const overrides = { value: ethers.utils.parseEther(String(0.077))};
+    GMPFP.connect(owner).flipPassState();
+    GMPFP.connect(owner).flipAllowState();
+    GMPFP.connect(owner).flipPublicState();
+    GMPFP.connect(owner).flipBoosterState();
+
+    GMPFP.connect(owner).genStartingIndex();
+    
+    const rPass = rNum(250,250)
+    console.log('MINT PASS: ', rPass)
+    const rAllow = rNum(4000,4000)
+    console.log('MINT PASS: ', rAllow)
+    const rPublic  = rNum(200,200)
+    console.log('PUBLIC PASS: ', rPublic)
+    const rBooster = rNum(250,250)
+    console.log('BOOSYER PASS: ', rBooster)
 
     // MINT - PASS
-    for (let i = 1; i <= 3; i++) {
-        let approval = await GMMerch.connect(accounts[i]).setApprovalForAll(GMPFP.address, true);
-        approval.wait();
-        let mint = await (await GMPFP.connect(accounts[i]).mintWithPass()).wait();
-        console.log('PASS MINT: %s', mint.transactionHash)
+    for (let i = 1; i <= rPass/2; i++) {
+      await mintWithPass(accounts[i])
+    }
+
+    // MINT - ALLOW
+    for (let i = 1; i <= rAllow/2; i++) {
+      await mintAllow(i, 2) 
+    }
+    // MINT - PASS
+    for (let i = 1; i <= rPass/2; i++) {
+      await mintWithPass(accounts[i])
     }
     // MINT - ALLOW
-    for (let i = 0; i < 40; i++) {
-        let messageHash = ethers.utils.solidityKeccak256(['address'], [accounts[i].address]);
-        let messageBytes = ethers.utils.arrayify(messageHash);
-        pfpSignatures.push(await owner.signMessage(messageBytes))
-
-        let mint1 = await (await GMPFP.connect(accounts[i]).mintAllow(pfpSignatures[i],overrides)).wait();
-        let mint2 = await (await GMPFP.connect(accounts[i]).mintAllow(pfpSignatures[i],overrides)).wait();
-        console.log('>>%s %s', mint1.transactionHash, mint2.transactionHash)
+    for (let i = 1; i <= rAllow/2; i++) {
+      await mintAllow(i, 2) 
     }
 
     // MINT - PUBLIC
-    for (let i = 1; i <= 10; i++) {
-        let mint = await GMPFP.connect(rAccount()).mint(overrides);
-        const tx = await mint.wait();
-        console.log('---- %s', tx.transactionHash)
+    for (let i = 1; i <= rPublic; i++) {
+      await mintPublic(5)
+    }
+
+    // MINT - PASS
+    for (let i = 1; i <= rBooster; i++) {
+      await mintWithBooster(accounts[i])
     }
     
-
+    console.log('MINT PASS: ', rPass)
+    console.log('MINT PASS: ', rAllow)
+    console.log('PUBLIC PASS: ', rPublic)
+    console.log('BOOSYER PASS: ', rBooster)
+    console.log('TOTAL: ', await GMPFP.connect(owner).totalSupply())
   };
 
 
