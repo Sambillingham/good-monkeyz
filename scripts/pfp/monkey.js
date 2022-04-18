@@ -163,7 +163,7 @@ const main = async () => {
     
     const rPass = rNum(250,250)
     console.log('MINT PASS: ', rPass)
-    const rAllow = rNum(4000,4000)
+    const rAllow = rNum(3500,3500)
     console.log('MINT PASS: ', rAllow)
     const rPublic  = rNum(200,200)
     console.log('PUBLIC PASS: ', rPublic)
@@ -171,26 +171,26 @@ const main = async () => {
     console.log('BOOSYER PASS: ', rBooster)
 
     // MINT - PASS
-    for (let i = 1; i <= rPass/2; i++) {
+    for (let i = 1; i <= rPass; i++) {
       await mintWithPass(accounts[i])
     }
 
     // MINT - ALLOW
-    for (let i = 1; i <= rAllow/2; i++) {
+    for (let i = 1; i <= rAllow; i++) {
       await mintAllow(i, 2) 
     }
-    // MINT - PASS
-    for (let i = 1; i <= rPass/2; i++) {
-      await mintWithPass(accounts[i])
-    }
-    // MINT - ALLOW
-    for (let i = 1; i <= rAllow/2; i++) {
-      await mintAllow(i, 2) 
-    }
+    // // MINT - PASS
+    // for (let i = 1; i <= rPass/2; i++) {
+    //   await mintWithPass(accounts[i])
+    // }
+    // // MINT - ALLOW
+    // for (let i = rAllow; i <= rAllow/2; i++) {
+    //   await mintAllow(i, 2) 
+    // }
 
     // MINT - PUBLIC
     for (let i = 1; i <= rPublic; i++) {
-      await mintPublic(5)
+      await mintPublic(10)
     }
 
     // MINT - PASS
@@ -203,6 +203,26 @@ const main = async () => {
     console.log('PUBLIC PASS: ', rPublic)
     console.log('BOOSYER PASS: ', rBooster)
     console.log('TOTAL: ', await GMPFP.connect(owner).totalSupply())
+
+
+    // WITHDRAW 
+    // - check balance before
+    // - check balance after
+    let PfpBal = await hre.ethers.provider.getBalance(GMPFP.address);
+    console.log('PFP BALANCE/ ', ethers.utils.formatEther(PfpBal) );
+    ownerBal = await hre.ethers.provider.getBalance(owner.address);
+    console.log('OWNER BALANCE/ ', ethers.utils.formatEther(ownerBal) );
+    console.log('================');
+    console.log('WITHDRAW');
+    console.log('================');
+    wd = await GMPFP.connect(owner).withdraw();
+    wd.wait();
+    let newPfpBal = await hre.ethers.provider.getBalance(GMPFP.address);
+    newOwnerBal = await hre.ethers.provider.getBalance(owner.address);
+    console.log('PFP BALANCE/ ', ethers.utils.formatEther(newPfpBal) );
+    console.log('OWNER BALANCE/ ', ethers.utils.formatEther(newOwnerBal) );
+    
+
   };
 
 

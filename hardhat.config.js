@@ -19,25 +19,33 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: "0.8.12",
+  solidity: {
+    version: "0.8.12",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 1000,
+      },
+    },
+  },
   networks: {
     hardhat: {
       accounts: {
         count: 10000
-      }
+      },
       // accounts: [
         // { privateKey: process.env.PRIVATE_KEY_MONKEY_PROD, balance: '10000000000000000000000'},
-        // { privateKey: process.env.PRIVATE_KEY, balance: '10000000000000000000000'}
+        // { privateKey: process.env.PRIVATE_KEY_DEV6, balance: '10000000000000000000000'}
       // ],
     },
     rinkeby: {
       url: process.env.STAGING_ALCHEMY_KEY,
-      accounts: [process.env.PRIVATE_KEY],
+      accounts: [process.env.PRIVATE_KEY_DEV6],
     },
-    mainnet: {      
-      url: process.env.MAINNET_ALCHEMY_KEY,      
-      accounts: [process.env.PRIVATE_KEY_MONKEY_PROD], 
-    },
+    // mainnet: {      
+    //   url: process.env.MAINNET_ALCHEMY_KEY,      
+    //   accounts: [process.env.PRIVATE_KEY_MONKEY_PROD], 
+    // },
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API,
