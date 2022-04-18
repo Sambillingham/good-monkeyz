@@ -3,11 +3,11 @@ require('dotenv').config();
 
 const main = async () => {
   
-  let dev5_address = '0xAd0FdA5A6B0D8eDdECc023619F060B08d761e867';
-  let privateKey = process.env.PRIVATE_KEY_DEV4;
+  let dev7_address = '0x5c3b51C7D95D06427cc90d64dFb50D6e910c1CA7';
+  let privateKey = process.env.PRIVATE_KEY_DEV6;
   let wallet = new ethers.Wallet(privateKey);
   
-  let messageHash = ethers.utils.solidityKeccak256(['address'], [dev5_address]);
+  let messageHash = ethers.utils.solidityKeccak256(['address'], [dev7_address]);
   let messageBytes = ethers.utils.arrayify(messageHash);
   let signature = await wallet.signMessage(messageBytes);
   
