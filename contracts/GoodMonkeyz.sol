@@ -33,6 +33,8 @@ contract GoodMonkeyz is ERC721A, Ownable {
     string public prizeListHash;
     uint256 public startingIndex;
     uint256 public prizeIndex;
+    bool public povenanceSet = false;
+    bool public indexSet = false;
     bool public PUBLIC = false;
     bool public ALLOW = false;
     bool public MINTPASS = false;
@@ -68,8 +70,10 @@ contract GoodMonkeyz is ERC721A, Ownable {
     }
     
     function setProvenance(string memory _provenanceHash, string memory _prizeListHash) external onlyOwner {
+        require(povenanceSet == false , "PROVENANCE CANNOT BE RESET");
         provenanceHash = _provenanceHash;
         prizeListHash = _prizeListHash;
+        povenanceSet = true;
     }
 
     function setNewPrice(uint256 _price, uint256 _doublePrice) external onlyOwner {
@@ -106,11 +110,11 @@ contract GoodMonkeyz is ERC721A, Ownable {
     }
 
     function genStartingIndex() external onlyOwner {
+        require(povenanceSet, "PROVENANCE MUST BE SET FIRST");
+        require(indexSet == false, "INDEX CANNOT BE RESET");
         startingIndex = uint(blockhash(block.number - 1)) % 10000;
-    }
-
-    function genPrizeIndex() external onlyOwner {
         prizeIndex = uint(blockhash(block.number - 1)) % 7000;
+        indexSet = true;
     }
 
     function mint(uint256 _amount) external payable{
