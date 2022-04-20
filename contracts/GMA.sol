@@ -10,7 +10,6 @@ pragma solidity ^0.8.12;
 import "erc721a/contracts/ERC721A.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "hardhat/console.sol";
 
 interface GMLTDEDITIONS {
     function burnToken(address, uint256 id) external; 
@@ -108,12 +107,10 @@ contract GMA is ERC721A, Ownable {
 
     function genStartingIndex() external onlyOwner {
         startingIndex = uint(blockhash(block.number - 1)) % 10000;
-        console.log('STARTING INDEX: ', startingIndex);
     }
 
     function genPrizeIndex() external onlyOwner {
         prizeIndex = uint(blockhash(block.number - 1)) % 7000;
-        console.log('Prize INDEX: ', prizeIndex);
     }
 
     function mint(uint256 _amount) external payable{
@@ -124,7 +121,6 @@ contract GMA is ERC721A, Ownable {
         require(msg.sender == tx.origin, "no bots"); 
 
         emit GMMinted(msg.sender, _currentIndex, _amount);
-        console.log(' mint %s %s', _currentIndex, _amount);
         _safeMint( msg.sender, _amount);
     }
 
@@ -145,8 +141,6 @@ contract GMA is ERC721A, Ownable {
         require(recoverSigner(msg.sender, signature) == owner(), "Address is not allowlisted");
         require(mintList[msg.sender] + _amount <= allowMintMax, "ABOVE MAX MINTS RESERVED");
 
-        console.log(' allow %s %s', _currentIndex,_currentIndex+1);
-        
         emit GMMinted(msg.sender, _currentIndex, _amount);
         _safeMint( msg.sender, _amount);
         mintList[msg.sender] = _amount ;      
@@ -167,7 +161,6 @@ contract GMA is ERC721A, Ownable {
 
         GMLTDEDITIONS(GMEditionsAddress).burnToken(msg.sender, MINT_PASS_ID);
 
-        console.log(' MINTPASS%s', _currentIndex);
         emit GMMinted(msg.sender, _currentIndex, 1);
         ++mintPassUsed;
         _safeMint( msg.sender, 1);
@@ -180,7 +173,6 @@ contract GMA is ERC721A, Ownable {
         GMLTDEDITIONS(GMEditionsAddress).burnToken(msg.sender, BOOSTER_PACK_ID);
 
         emit GMMinted(msg.sender, _currentIndex, 3);
-        console.log(' booster %s %s %s', _currentIndex, _currentIndex+1, _currentIndex+2);
         ++boosterPacksOpened;
         _safeMint( msg.sender, 3);
     }
