@@ -24,7 +24,7 @@ const main = async () => {
     await GMMerch.connect(owner).createMerchItem(250, ethers.utils.parseEther('0.1'), ethers.utils.parseEther('0.001') )
     await GMMerch.connect(owner).updateMerchItem(
         0, 
-        250,
+        500,
         ethers.utils.parseEther('0.07'),
         ethers.utils.parseEther('0.007'),
         7,
@@ -33,25 +33,25 @@ const main = async () => {
         true );
    await GMMerch.connect(owner).updateMerchItem(
           1, 
-          250,
+          500,
           ethers.utils.parseEther('0.1'),
           ethers.utils.parseEther('0.00'),
-          250,
+          500,
           false,
           false,
           false );
     await GMMerch.connect(owner).updateMerchItem(
       2, 
-      250,
+      500,
       ethers.utils.parseEther('0.1'),
       ethers.utils.parseEther('0.00'),
-      250,
+      500,
       true,
       true,
       true );
     
     let price = 0.07;
-    for (let i = 0; i < 250; i++) {
+    for (let i = 0; i < 500; i++) {
         let messageHash = ethers.utils.solidityKeccak256(['address', 'uint256'], [accounts[i+1].address, 0]);
         let messageBytes = ethers.utils.arrayify(messageHash);
         signatures.push(await owner.signMessage(messageBytes))
@@ -65,7 +65,7 @@ const main = async () => {
         let mint = await (await GMMerch.connect(accounts[i+1]).mintTokenAllow(0,signatures[i],overrides)).wait();
         console.log(`MINT TOKEN: #${i+1} ---- PRICE: ${price} - `, mint.transactionHash)
     }
-    for (let i = 1; i <= 250; i++) {
+    for (let i = 1; i <= 500; i++) {
       
       const overrides = { value: ethers.utils.parseEther(String(0.1))};
       let mint = await (await GMMerch.connect(accounts[i]).mintToken(2,overrides)).wait();
@@ -127,7 +127,12 @@ const main = async () => {
     }
 
     async function mintAllow(i, _amount) {
-      let overrides = { value: ethers.utils.parseEther(String(0.077*_amount))};
+      let overrides;
+      if (_amount === 2){
+        overrides = { value: ethers.utils.parseEther(String(0.1337))};
+      } else{
+        overrides = { value: ethers.utils.parseEther(String(0.077*_amount))};
+      }
       let messageHash = ethers.utils.solidityKeccak256(['address'], [accounts[i].address]);
       let messageBytes = ethers.utils.arrayify(messageHash);
       pfpSignatures.push(await owner.signMessage(messageBytes))
@@ -160,14 +165,15 @@ const main = async () => {
     GMPFP.connect(owner).flipBoosterState();
 
     GMPFP.connect(owner).genStartingIndex();
+    GMPFP.connect(owner).genPrizeIndex();
     
     const rPass = rNum(250,250)
     console.log('MINT PASS: ', rPass)
-    const rAllow = rNum(3500,3500)
+    const rAllow = rNum(2500,3500)
     console.log('MINT PASS: ', rAllow)
-    const rPublic  = rNum(666,666)
+    const rPublic  = rNum(1000,1000)
     console.log('PUBLIC PASS: ', rPublic)
-    const rBooster = rNum(250,250)
+    const rBooster = rNum(250,500)
     console.log('BOOSYER PASS: ', rBooster)
 
     // MINT - PASS
@@ -175,22 +181,14 @@ const main = async () => {
       await mintWithPass(accounts[i])
     }
 
-    // MINT - ALLOW
+    // // MINT - ALLOW
     for (let i = 1; i <= rAllow; i++) {
       await mintAllow(i, 2) 
     }
-    // // MINT - PASS
-    // for (let i = 1; i <= rPass/2; i++) {
-    //   await mintWithPass(accounts[i])
-    // }
-    // // MINT - ALLOW
-    // for (let i = rAllow; i <= rAllow/2; i++) {
-    //   await mintAllow(i, 2) 
-    // }
 
     // MINT - PUBLIC
     for (let i = 1; i <= rPublic; i++) {
-      await mintPublic(3)
+      await mintPublic(2)
     }
 
     // MINT - PASS
@@ -201,13 +199,11 @@ const main = async () => {
     console.log('MINT PASS: ', rPass)
     console.log('MINT PASS: ', rAllow)
     console.log('PUBLIC PASS: ', rPublic)
-    console.log('BOOSYER PASS: ', rBooster)
+    console.log('BOOST BAR: ', rBooster)
     console.log('TOTAL: ', await GMPFP.connect(owner).totalSupply())
 
 
     // WITHDRAW 
-    // - check balance before
-    // - check balance after
     let PfpBal = await hre.ethers.provider.getBalance(GMPFP.address);
     console.log('PFP BALANCE/ ', ethers.utils.formatEther(PfpBal) );
     ownerBal = await hre.ethers.provider.getBalance(owner.address);

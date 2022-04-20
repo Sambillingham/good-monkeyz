@@ -24,11 +24,14 @@ contract GMA is ERC721A, Ownable {
     uint256 public ALLOW_MAX = 7000;
     uint256 public MINTPASS_MAX = 250;
     uint256 public BOOSTER_MAX = 250;
-    uint256 public publicMintMax = 3;
+    uint256 public publicMintMax = 2;
     uint256 public allowMintMax = 2;
     uint256 public price = 0.077 ether;
+    uint256 public doublePrice = 0.1337 ether;
     uint256 public mintPassUsed;
     uint256 public boosterPacksOpened;
+    string public provenanceHash;
+    string public prizeListHash;
     uint256 public startingIndex;
     uint256 public prizeIndex;
     bool public PUBLIC = false;
@@ -64,9 +67,15 @@ contract GMA is ERC721A, Ownable {
     function setMerchAddress(address _GMEditionsAddress) public onlyOwner {
         GMEditionsAddress = _GMEditionsAddress;
     }
+    
+    function setProvenance(string memory _provenanceHash, string memory _prizeListHash) external onlyOwner {
+        provenanceHash = _provenanceHash;
+        prizeListHash = _prizeListHash;
+    }
 
-    function setNewPrice(uint256 _price) external onlyOwner {
+    function setNewPrice(uint256 _price, uint256 _doublePrice) external onlyOwner {
         price = _price;
+        doublePrice = _doublePrice;
     }
     
     function setNewPublicMax(uint256 _max) external onlyOwner {
@@ -109,7 +118,7 @@ contract GMA is ERC721A, Ownable {
 
     function mint(uint256 _amount) external payable{
         require(PUBLIC , "MINTING - NOT OPEN");
-        require(_amount <= publicMintMax , "ABOVE MAX MONKEYZ");
+        require(_amount <= publicMintMax , "ABOVE MAX MONKEYZ PER TX");
         require(msg.value >= price * _amount, "Not enough ETH sent");
         require(totalSupply() + _amount <= publicAllocation(), "Public Allocation Sold out");
         require(msg.sender == tx.origin, "no bots"); 
@@ -120,7 +129,6 @@ contract GMA is ERC721A, Ownable {
     }
 
     function recoverSigner(address _address, bytes memory signature) public pure returns (address) {
-
         bytes32 messageDigest = keccak256(
             abi.encodePacked(
                 "\x19Ethereum Signed Message:\n32",
@@ -132,7 +140,7 @@ contract GMA is ERC721A, Ownable {
 
     function mintAllow(uint256 _amount, bytes memory signature) external payable {
         require(ALLOW , "MINTING ALLOW LIST - NOT OPEN");
-        require(msg.value >= price * _amount, "Not enough ETH sent");
+        require(msg.value >= calcPrice(_amount), "Not enough ETH sent");
         require(totalSupply() + _amount <= ALLOW_MAX + mintPassUsed , "ALLOW list Sold out");
         require(recoverSigner(msg.sender, signature) == owner(), "Address is not allowlisted");
         require(mintList[msg.sender] + _amount <= allowMintMax, "ABOVE MAX MINTS RESERVED");
@@ -144,26 +152,37 @@ contract GMA is ERC721A, Ownable {
         mintList[msg.sender] = _amount ;      
     }
 
+    function calcPrice(uint256 _amount) internal view returns (uint256){
+        if(_amount == 2){
+            return doublePrice;
+        } else {
+            return _amount * price;
+        }
+    }
+
     function mintWithPass() external {
         require(MINTPASS , "MINTING WITH PASS - NOT OPEN");
         require(mintPassUsed < MINTPASS_MAX, "MINT PASS ALLOCATION USED");
+        
 
         GMLTDEDITIONS(GMEditionsAddress).burnToken(msg.sender, MINT_PASS_ID);
 
         console.log(' MINTPASS%s', _currentIndex);
         emit GMMinted(msg.sender, _currentIndex, 1);
-        _safeMint( msg.sender, 1);
         ++mintPassUsed;
+        _safeMint( msg.sender, 1);
     }
 
     function mintWithBoosterPack() external {
         require(BOOSTER , "MINTING WITH BOOSTER PACK - NOT OPEN");
-        GMLTDEDITIONS(GMEditionsAddress).burnToken(msg.sender, BOOSTER_PACK_ID); // fail if user does not have passId2
+        require(boosterPacksOpened < BOOSTER_MAX, "BOOSTER PACK ALLOCATION USED");
+        
+        GMLTDEDITIONS(GMEditionsAddress).burnToken(msg.sender, BOOSTER_PACK_ID);
 
         emit GMMinted(msg.sender, _currentIndex, 3);
         console.log(' booster %s %s %s', _currentIndex, _currentIndex+1, _currentIndex+2);
-        _safeMint( msg.sender, 3);
         ++boosterPacksOpened;
+        _safeMint( msg.sender, 3);
     }
 
     function publicAllocation() internal view returns (uint256){
@@ -177,14 +196,6 @@ contract GMA is ERC721A, Ownable {
     function setContractURI(string memory uri) public onlyOwner {
         _contractURI = uri;
     }
-
-    // IERC2981
-
-    // function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns (address, uint256 royaltyAmount) {
-    //     _tokenId; // silence solc warning
-    //     royaltyAmount = (_salePrice / 100) * 7;
-    //     return (royalties, royaltyAmount);
-    // }
 
     function withdraw() public onlyOwner() {
         uint256 balance = address(this).balance;

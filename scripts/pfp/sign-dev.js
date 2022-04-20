@@ -3,7 +3,7 @@ require('dotenv').config();
 
 const main = async () => {
   
-  let dev7_address = '0x5c3b51C7D95D06427cc90d64dFb50D6e910c1CA7';
+  let dev7_address = '0xd3d7db39e933A86D15A135a8Cc8dd8E14Ed6C616';
   let privateKey = process.env.PRIVATE_KEY_DEV6;
   let wallet = new ethers.Wallet(privateKey);
   
