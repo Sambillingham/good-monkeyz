@@ -7,32 +7,32 @@
 
 pragma solidity ^0.8.12;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "erc721a/contracts/ERC721A.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "hardhat/console.sol";
 
 interface GMLTDEDITIONS {
     function burnToken(address, uint256 id) external; 
 }
 
-contract GoodMonkeyz is ERC721, Ownable {
-    using Counters for Counters.Counter;
-
-    Counters.Counter private tokenId;
-    address public GMEditionsAddress;
+contract GoodMonkeyz is ERC721A, Ownable {
+    address public GMEditionsAddress = 0x66722f13F6e5dcEB94c5F2aB8e6A2028039e8393;
     uint256 public MINT_PASS_ID = 1;
     uint256 public BOOSTER_PACK_ID = 2;
     uint256 public GENERAL_SUPPLY = 9000;
     uint256 public ALLOW_MAX = 7000;
     uint256 public MINTPASS_MAX = 250;
     uint256 public BOOSTER_MAX = 250;
-    uint256 public PUBLIC_MINT_MAX = 10;
+    uint256 public publicMintMax = 2;
+    uint256 public allowMintMax = 2;
     uint256 public price = 0.077 ether;
+    uint256 public doublePrice = 0.1337 ether;
     uint256 public mintPassUsed;
     uint256 public boosterPacksOpened;
+    string public provenanceHash;
+    string public prizeListHash;
     uint256 public startingIndex;
+    uint256 public prizeIndex;
     bool public PUBLIC = false;
     bool public ALLOW = false;
     bool public MINTPASS = false;
@@ -42,10 +42,17 @@ contract GoodMonkeyz is ERC721, Ownable {
 
     mapping(address => uint256) public mintList;
 
-    event GMMinted(address sender, uint256 tokenId);
+    event GMMinted(address sender, uint256 tokenId, uint256 amount);
 
-    constructor() ERC721("GOOD MONKEYZ", "GM") {
-        tokenId.increment();
+    event AllowStatus(bool status);
+    event PublicStatus(bool status);
+    event MintPassStatus(bool status);
+    event BoostStatus(bool status);
+
+    constructor() ERC721A("GMA", "GM") {}
+
+    function _startTokenId() internal view virtual override returns (uint256) {
+        return 1;
     }
 
     function setBaseURI(string memory newURI) external onlyOwner () {
@@ -58,52 +65,66 @@ contract GoodMonkeyz is ERC721, Ownable {
 
     function setMerchAddress(address _GMEditionsAddress) public onlyOwner {
         GMEditionsAddress = _GMEditionsAddress;
-        console.log("GMSHOP Contract updated to %s", GMEditionsAddress);
+    }
+    
+    function setProvenance(string memory _provenanceHash, string memory _prizeListHash) external onlyOwner {
+        provenanceHash = _provenanceHash;
+        prizeListHash = _prizeListHash;
     }
 
-    // Flip public sale state
+    function setNewPrice(uint256 _price, uint256 _doublePrice) external onlyOwner {
+        price = _price;
+        doublePrice = _doublePrice;
+    }
+    
+    function setNewPublicMax(uint256 _max) external onlyOwner {
+        publicMintMax = _max;
+    }
+
+    function setNewAllowMax(uint256 _max) external onlyOwner {
+        allowMintMax = _max;
+    }
+
     function flipPublicState() external onlyOwner {
         PUBLIC = !PUBLIC;
+        emit PublicStatus(PUBLIC);
     }
 
-    // Flip allowlist sale state
     function flipAllowState() external onlyOwner {
         ALLOW = !ALLOW;
+        emit AllowStatus(ALLOW);
     }
 
-    // Flip mintpass sale state
     function flipPassState() external onlyOwner {
         MINTPASS = !MINTPASS;
+        emit MintPassStatus(MINTPASS);
     }
 
-    // Flip Booster sale state
     function flipBoosterState() external onlyOwner {
         BOOSTER = !BOOSTER;
+        emit BoostStatus(BOOSTER);
     }
 
     function genStartingIndex() external onlyOwner {
         startingIndex = uint(blockhash(block.number - 1)) % 10000;
-        console.log('STARTING INDEX: ', startingIndex);
     }
-    
+
+    function genPrizeIndex() external onlyOwner {
+        prizeIndex = uint(blockhash(block.number - 1)) % 7000;
+    }
 
     function mint(uint256 _amount) external payable{
         require(PUBLIC , "MINTING - NOT OPEN");
-        require(_amount <= PUBLIC_MINT_MAX , "MAX 10 MONKEYZ");
+        require(_amount <= publicMintMax , "ABOVE MAX MONKEYZ PER TX");
         require(msg.value >= price * _amount, "Not enough ETH sent");
-        require(tokenId.current() <= publicAllocation(), "Public Allocation Sold out");
+        require(totalSupply() + _amount <= publicAllocation(), "Public Allocation Sold out");
         require(msg.sender == tx.origin, "no bots"); 
 
-        for(uint256 i; i < _amount; i++){
-            _safeMint( msg.sender, tokenId.current());
-            console.log('mint public %s', tokenId.current());
-            emit GMMinted(msg.sender, tokenId.current());
-            tokenId.increment();
-        }
+        emit GMMinted(msg.sender, _currentIndex, _amount);
+        _safeMint( msg.sender, _amount);
     }
 
     function recoverSigner(address _address, bytes memory signature) public pure returns (address) {
-
         bytes32 messageDigest = keccak256(
             abi.encodePacked(
                 "\x19Ethereum Signed Message:\n32",
@@ -115,57 +136,51 @@ contract GoodMonkeyz is ERC721, Ownable {
 
     function mintAllow(uint256 _amount, bytes memory signature) external payable {
         require(ALLOW , "MINTING ALLOW LIST - NOT OPEN");
-        require(msg.value >= price * _amount, "Not enough ETH sent");
-        require(tokenId.current() <= ALLOW_MAX + mintPassUsed , "ALLOW list Sold out");
+        require(msg.value >= calcPrice(_amount), "Not enough ETH sent");
+        require(totalSupply() + _amount <= ALLOW_MAX + mintPassUsed , "ALLOW list Sold out");
         require(recoverSigner(msg.sender, signature) == owner(), "Address is not allowlisted");
-        require(mintList[msg.sender] + _amount <= 2, "ONLY 2 MINTS RESERVED");
+        require(mintList[msg.sender] + _amount <= allowMintMax, "ABOVE MAX MINTS RESERVED");
 
-        for(uint256 i; i < _amount; i++){
-            _safeMint( msg.sender, tokenId.current());
-            console.log('mint allow %s', tokenId.current());
-            emit GMMinted(msg.sender, tokenId.current());
-            tokenId.increment();
-            ++mintList[msg.sender];        
+        emit GMMinted(msg.sender, _currentIndex, _amount);
+        _safeMint( msg.sender, _amount);
+        mintList[msg.sender] = _amount ;      
+    }
+
+    function calcPrice(uint256 _amount) internal view returns (uint256){
+        if(_amount == 2){
+            return doublePrice;
+        } else {
+            return _amount * price;
         }
     }
 
-    // allow contract to use mint pass
     function mintWithPass() external {
         require(MINTPASS , "MINTING WITH PASS - NOT OPEN");
         require(mintPassUsed < MINTPASS_MAX, "MINT PASS ALLOCATION USED");
+        
 
         GMLTDEDITIONS(GMEditionsAddress).burnToken(msg.sender, MINT_PASS_ID);
-        uint256 id = tokenId.current();
-        _safeMint(msg.sender, id);
-        emit GMMinted(msg.sender, tokenId.current());
-        tokenId.increment();
+
+        emit GMMinted(msg.sender, _currentIndex, 1);
         ++mintPassUsed;
-        console.log('MINT WITH MINTPASS #%s', id);
+        _safeMint( msg.sender, 1);
     }
 
-    // allow contract to use booster
     function mintWithBoosterPack() external {
         require(BOOSTER , "MINTING WITH BOOSTER PACK - NOT OPEN");
-        GMLTDEDITIONS(GMEditionsAddress).burnToken(msg.sender, BOOSTER_PACK_ID); // fail if user does not have passId2
-        for(uint256 i; i < 3; i++){
-            _safeMint( msg.sender, tokenId.current() );
-            console.log('mint booster %s', tokenId.current());
-            emit GMMinted(msg.sender, tokenId.current());
-            tokenId.increment();            
-        }
+        require(boosterPacksOpened < BOOSTER_MAX, "BOOSTER PACK ALLOCATION USED");
+        
+        GMLTDEDITIONS(GMEditionsAddress).burnToken(msg.sender, BOOSTER_PACK_ID);
+
+        emit GMMinted(msg.sender, _currentIndex, 3);
         ++boosterPacksOpened;
+        _safeMint( msg.sender, 3);
     }
 
     function publicAllocation() internal view returns (uint256){
         return GENERAL_SUPPLY + mintPassUsed + boosterPacksOpened*3;
     }
     
-    function totalSupply() external view returns (uint256) {
-        uint256 total = tokenId.current() -1;
-        return total;
-    }
-
-    // need default contract Data for opensea function
     function contractURI() public view returns (string memory) {
         return _contractURI;
     }
@@ -173,14 +188,6 @@ contract GoodMonkeyz is ERC721, Ownable {
     function setContractURI(string memory uri) public onlyOwner {
         _contractURI = uri;
     }
-
-    // IERC2981
-
-    // function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns (address, uint256 royaltyAmount) {
-    //     _tokenId; // silence solc warning
-    //     royaltyAmount = (_salePrice / 100) * 7;
-    //     return (royalties, royaltyAmount);
-    // }
 
     function withdraw() public onlyOwner() {
         uint256 balance = address(this).balance;
